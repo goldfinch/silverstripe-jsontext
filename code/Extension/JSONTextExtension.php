@@ -75,24 +75,26 @@ class JSONTextExtension extends DataExtension
     {
         parent::onBeforeWrite();
 
-        $owner = $this->getOwner();
-        $controller = Controller::curr();
-        $postVars = $controller->getRequest()->postVars();
-        $fieldMap = $owner->config()->get('json_field_map');
-        $doUpdate = (
-            count($postVars) &&
-            !empty($fieldMap) &&
-            in_array(get_class($controller), [CMSPageEditController::class])
-        );
+        if (Controller::has_curr()) {
+            $owner = $this->getOwner();
+            $controller = Controller::curr();
+            $postVars = $controller->getRequest()->postVars();
+            $fieldMap = $owner->config()->get('json_field_map');
+            $doUpdate = (
+                count($postVars) &&
+                !empty($fieldMap) &&
+                in_array(get_class($controller), [CMSPageEditController::class])
+            );
 
-        if (!$doUpdate) {
-            return null;
-        }
+            if (!$doUpdate) {
+                return null;
+            }
 
-        // Could also use DataObject::getSchema()->fieldSpecs()
-        foreach ($owner->config()->get('db') as $field => $type) {
-            if ($type === JSONText::class) {
-                $this->updateJSON($postVars, $owner);
+            // Could also use DataObject::getSchema()->fieldSpecs()
+            foreach ($owner->config()->get('db') as $field => $type) {
+                if ($type === JSONText::class) {
+                    $this->updateJSON($postVars, $owner);
+                }
             }
         }
     }
